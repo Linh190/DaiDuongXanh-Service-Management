@@ -1,0 +1,158 @@
+============================================================
+  HƯỚNG DẪN CÀI ĐẶT VÀ CHẠY
+  Hệ thống Quản lý Dịch vụ – Đại Dương Xanh
+  (03_VuNgocLinh)
+============================================================
+
+YÊU CẦU HỆ THỐNG
+-----------------
+- Windows 10/11 (64-bit)
+- Visual Studio 2022 (.NET Framework 4.8)
+- SQL Server Express 2019 trở lên (có SQL Server Management Studio – SSMS)
+
+
+============================================================
+BƯỚC 1: CÀI ĐẶT CƠ SỞ DỮ LIỆU
+============================================================
+
+1.1  Mở SQL Server Management Studio (SSMS)
+     Kết nối vào server (mặc định: LAPTOP-0FBIHDMS\SQLEXPRESS
+     hoặc tên máy tính của bạn\SQLEXPRESS)
+
+1.2  Chạy file script TẠO CSDL (chạy TRƯỚC):
+     File: QuanLyDichVu_DaiDuongXanh_CreateDB.sql
+     → Chuột phải vào file → Open with SSMS → nhấn F5 (Execute)
+     Script này tạo database, toàn bộ bảng, ràng buộc và trigger.
+
+1.3  Chạy file script NHẬP DỮ LIỆU MẪU (chạy SAU bước 1.2):
+     File: 4016_VuNgocLinh_THNN_insertdata.sql
+     → Chuột phải → Open with SSMS → nhấn F5 (Execute)
+
+     Sau khi chạy xong, kiểm tra kết quả ở cuối màn hình.
+     Số dòng đúng cần có:
+
+       Bảng                 | Số dòng
+       ---------------------|--------
+       KhachHang            |  52
+       NhanVien             |  50
+       TaiKhoan             | 152
+       NhomDichVu           |   7
+       DichVu               |  23
+       DonDichVu            |  55
+       ChiTietDonDichVu     | ~120+
+       HoaDon               |  40
+       ChungTu              | ~30+
+       LichSuTrangThaiDon   | ~20+
+
+     Nếu có lỗi "Cannot insert duplicate key" → database đã có dữ liệu,
+     cần DROP và tạo lại từ bước 1.2.
+
+
+============================================================
+BƯỚC 2: CẤU HÌNH KẾT NỐI TRONG ỨNG DỤNG
+============================================================
+
+2.1  Mở file: 03_VuNgocLinh\App.config
+     Tìm dòng connectionStrings và sửa Data Source thành
+     tên máy chủ SQL Server của bạn. Ví dụ:
+
+     <connectionStrings>
+       <add name="QuanLyDichVu"
+            connectionString="Data Source=TEN_MAY\SQLEXPRESS;
+            Initial Catalog=QuanLyDichVu_DaiDuongXanh;
+            Integrated Security=True;
+            MultipleActiveResultSets=True;
+            Connect Timeout=30;" />
+     </connectionStrings>
+
+     → Thay TEN_MAY bằng tên máy tính của bạn
+       (xem tên máy: nhấn Windows + Pause/Break hoặc gõ "hostname"
+        trong Command Prompt)
+
+2.2  Nếu dùng SQL Authentication thay vì Windows Authentication:
+     Thêm: User ID=sa;Password=MatKhauCuaBan;
+     Bỏ: Integrated Security=True;
+
+2.3  Cũng có thể cấu hình ngay trong ứng dụng sau khi chạy:
+     Vào menu Hệ thống → Cấu hình kết nối CSDL (FrmKetNoiCSDL)
+     Nhập thông tin server và nhấn "Kiểm tra kết nối" trước khi lưu.
+
+
+============================================================
+BƯỚC 3: MỞ VÀ CHẠY PROJECT
+============================================================
+
+3.1  Mở Visual Studio 2022
+     File → Open → Project/Solution
+     Chọn file: 03_VuNgocLinh\03_VuNgocLinh.sln
+
+3.2  Build project:
+     Nhấn Ctrl + Shift + B  (hoặc Build → Build Solution)
+     Đảm bảo không có lỗi đỏ ở cửa sổ Error List.
+
+3.3  Chạy ứng dụng:
+     Nhấn F5 (hoặc nút ▶ Start)
+     Cửa sổ đăng nhập (FrmLogin) sẽ hiện ra.
+
+
+============================================================
+BƯỚC 4: TÀI KHOẢN ĐĂNG NHẬP MẪU
+============================================================
+
+LƯU Ý QUAN TRỌNG VỀ MẬT KHẨU:
+  File SQL lưu mật khẩu dạng placeholder '$2b$12$hashXXX'.
+  Ứng dụng so sánh trực tiếp chuỗi này với giá trị nhập vào.
+  → Khi đăng nhập, nhập MẬT KHẨU đúng bằng chuỗi hash tương ứng,
+    HOẶC vào SSMS cập nhật MATKHAU_HASH thành mật khẩu thực bạn muốn.
+
+ ------------------------------------------------------------
+VAI TRÒ: CHỦ DOANH NGHIỆP (toàn quyền quản lý)
+  Tên đăng nhập : nv_huong.nguyen
+  Mã nhân viên  : NV001
+  Mật khẩu      : $2b$12$hash101
+  Chức năng     : Dashboard tổng quan, quản lý nhân viên,
+                  danh mục dịch vụ, duyệt chứng từ, báo cáo
+
+VAI TRÒ: NHÂN VIÊN QUẢN LÝ HỆ THỐNG (Admin)
+  Tên đăng nhập : nv_truong.le
+  Mã nhân viên  : NV002
+  Mật khẩu      : 851023hash
+  Chức năng     : Quản lý tài khoản, xem nhật ký hệ thống,
+                  sao lưu/phục hồi CSDL, cấu hình kết nối
+
+VAI TRÒ: NHÂN VIÊN BÁN HÀNG (một số ví dụ)
+  Tên đăng nhập : nv_mai.pham        (NV003)
+  Mật khẩu      : $2b$12$hash103
+  Tên đăng nhập : nv_duc.tran        (NV004)
+  Tên đăng nhập : nv_linh.hoang      (NV005)
+  Chức năng     : Tiếp nhận đơn dịch vụ, quản lý khách hàng,
+                  lập hóa đơn, xem dashboard bán hàng
+
+VAI TRÒ: NHÂN VIÊN VĂN PHÒNG (một số ví dụ)
+  Tên đăng nhập : nv_khoa.ngo        (NV006)
+  Mật khẩu      : $2b$12$hash106
+  Tên đăng nhập : nv_ha.bui          (NV009)
+  Tên đăng nhập : nv_cam.dinh        (NV011)
+  Chức năng     : Xử lý đơn, lập chứng từ, xuất PDF/Excel,
+                  xem dashboard văn phòng
+
+VAI TRÒ: KHÁCH HÀNG (một số ví dụ)
+  Tên đăng nhập : vulinh	
+  Mật khẩu      : Rdc48597@
+  Tên đăng nhập : kh_an.nguyen       (KH001)
+  Mật khẩu      : $2b$12$hash001
+  Tên đăng nhập : kh_bich.tran       (KH002)
+  Tên đăng nhập : kh_cuong.le        (KH003)
+  Chức năng     : Xem dịch vụ, đặt đơn, theo dõi lịch sử đơn,
+                  cập nhật thông tin cá nhân
+
+TÀI KHOẢN BỊ KHÓA (để test):
+  kh_lan.dang  / kh_yen.luu   (khách hàng – Khóa)
+  nv_xuyen.giap / nv_yen.han  (nhân viên nghỉ việc – Khóa)
+
+
+============================================================
+  Vũ Ngọc Linh – MSSV 2321004016
+  Trường Đại học Tài chính – Marketing
+  Thực hành nghề nghiệp – Tháng 6/2026
+============================================================

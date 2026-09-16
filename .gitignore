@@ -1,0 +1,25 @@
+# Visual Studio
+.vs/
+
+# Build output
+bin/
+obj/
+
+# Build configurations
+Debug/
+Release/
+
+# Visual Studio user files
+*.user
+*.suo
+*.userprefs
+
+# Local database files
+*.db
+*.mdf
+*.ldf
+*.bak
+
+# Environment / secret files
+.env
+appsettings.Development.json
